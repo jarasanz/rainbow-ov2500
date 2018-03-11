@@ -1,0 +1,17 @@
+{
+  "name": "daneel",
+  "version": "1.0.0",
+  "description": "bot for Rainbow and OV2500 integration",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jorge Arasanz",
+  "license": "ISC",
+  "dependencies": {
+    "human-password": "^1.0.4",
+    "rainbow-node-sdk": "^1.37.0",
+    "request": "^2.83.0",
+    "request-promise": "^4.2.2"
+  }
+}
