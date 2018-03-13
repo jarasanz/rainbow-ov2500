@@ -21,8 +21,8 @@ let options = {
         "host": "openrainbow.com",     
     },
     "credentials": {
-        "login": "rainbow.daneel@gmail.com",
-        "password": "Daneel666_!"
+        "login": "rainbow.user@gmail.com",
+        "password": "rainbow_passwd"
     },
     //App identifier
     "application": {
