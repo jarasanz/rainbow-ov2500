@@ -69,8 +69,10 @@ function loginOV2500(IPaddress, userName, password, callback){
     }
     request.post(options, function(error, response, body) {
         if (!error && response.statusCode == 200) {
+//            console.log(error)
+//            console.log(response.statusCode);
 //            console.log(body);
-            out.error = 200
+            out.error = response.statusCode
             out.info = body
             callback(out);
             
@@ -97,6 +99,7 @@ function logoutOV2500(IPaddress, callback){
     }
     request.get(options, function(error, response, body) {
         if (!error && response.statusCode == 200) {
+//            console.log(error)
 //            console.log(body);
             out.error = response.statusCode
             out.info = body
@@ -269,7 +272,9 @@ function findAccount(newuser, callback){
     let userListLength = 0;
     
     loginOV2500(OV2500, ovuser, ovpass, function(loginstatus){
-        if (loginstatus.info.message.includes("success")) {
+//        console.log(loginstatus);
+        if (loginstatus.error == 200) {
+            // Login success in OV2500
             getAllAccountList(OV2500, function(result){
 //                console.log(result.info.data);
                 logoutOV2500(OV2500, function(loginstatus){
@@ -286,7 +291,11 @@ function findAccount(newuser, callback){
                     callback(userId);
                 });
             });
-        };
+        }
+        else {
+            userId = loginstatus.error.errno;
+            callback(userId);
+        }
     });
 };
 
@@ -387,7 +396,14 @@ rainbowSDK.events.on('rainbow_onmessagereceived', function(message) {
                 newuser.username = message.content.split(":")[1];
                 
                 findAccount(newuser, function(userId){
-                    if (userId != false){
+                    if (userId == "EHOSTUNREACH") {
+                        // Not connected with OV2500
+                        msg = "**CAN'T CONNECT TO OV2500 !!!**, Please tell IT to check my connectivity...";
+                        formatted_msg.message = msg;
+                        messageSent = rainbowSDK.im.sendMessageToJid(msg, sendToJid, "en", formatted_msg);
+                        newuser = resetNewUser(newuser);
+                    }
+                    else if (userId != false){
                         // User in OV
 //                        console.log("User in OV");
                         msg = "UserName: **" + newuser.username + "**, already exists in OV2500. **Cancelling**... `Please use other username`.";
