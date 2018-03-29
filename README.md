@@ -106,4 +106,4 @@ Daneel will listen to request coming from sponsors:
   ```
 
 # 
-This program is distributed as is. Use it, modify or distribute, but please mention the author.
+This program is distributed as is. Use, modify or distribute it, but please mention the author.
