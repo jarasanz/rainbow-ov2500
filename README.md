@@ -42,6 +42,18 @@ Daneel will listen to request coming from sponsors:
 - Delete a user: d:username
   - Example: `d:username1`
 
+## Installation
+
+1. Install or use your favourite Linux distro, I'll be using Ubuntu
+2. Install node.js, I would recommend to go LTS or latest, but usually Ubuntu repos are not so updated.
+  - Install from binary packages - [Node.js Downloads](https://nodejs.org/en/download/)
+  - Install from NodeSource repository - [Node.js Installing from PPA for Ubuntu/Debian](https://nodejs.org/en/download/package-manager/#debian-and-ubuntu-based-linux-distributions)
+    * For Current-Latest features (Node.js 9):
+    ```bash
+    curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash -
+    sudo apt-get install -y nodejs
+    ```
+
 The program use Rainbow Node.js SDK and OV2500 RESTful API.
 
 This program is distributed as is. Use it, modify or distribute, but please mention the author.
