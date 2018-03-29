@@ -105,6 +105,5 @@ Daneel will listen to request coming from sponsors:
   node index.js
   ```
 
-The program use Rainbow Node.js SDK and OV2500 RESTful API.
-
+# 
 This program is distributed as is. Use it, modify or distribute, but please mention the author.
