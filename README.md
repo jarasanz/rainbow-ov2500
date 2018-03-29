@@ -1,8 +1,8 @@
 # Daneel bot
 
 This Node.js app shows how to integrate two ALE ([Alcatel-Lucent Enterprise](https://www.al-enterprise.com/)) tools:
-- **Rainbow**, the CPaaS platform
-- **OmniVista2500**, the Network and Identity Management system for LAN (OmniSwitch) and WLAN (OmniAccess)
+- [**Rainbow**](https://www.openrainbow.com/), the CPaaS platform
+- [**OmniVista2500**](https://www.al-enterprise.com/en/products/network-management-security/omnivista-2500-network-management-system), the Network and Identity Management system for LAN (OmniSwitch) and WLAN (OmniAccess)
 
 The basic idea is people in a Bubble (Rainbow term for a chat group), can interact with **Daneel Bot**, asking Daneel to create users in OmniVista 2500 (OV2500) UPAM (the Identity Management System), so provisioned users can use SSIDs with 802.1X authentication.
 
