@@ -6,11 +6,13 @@ This Node.js app shows how to integrate two ALE ([Alcatel-Lucent Enterprise](htt
 
 The basic idea is people in a Bubble (Rainbow term for a chat group), can interact with **Daneel Bot**, asking Daneel to create users in OmniVista 2500 (OV2500) UPAM (the Identity Management System), so provisioned users can use SSIDs with 802.1X authentication.
 
-The human interacting with Daneel, can be seen as a ###### **sponsor** asking for credentials for a visitor/guest.
+The human interacting with Daneel, can be seen as a **sponsor** asking for credentials for a visitor/guest.
 
 IT Department can allow some Rainbow users in the corporation to have access to Daneel.
 
 The Bot is connected to the Corporate Rainbow space, and IT manager creates a Bublble to include Daneel Bot.
+
+## Interacting with Daneel bot:
 
 Daneel will listen to request coming from sponsors:
 
@@ -21,8 +23,11 @@ Daneel will listen to request coming from sponsors:
   - Example: `p:w`
   - Example: `p:s`
 - Cancel Operation: c:
+  - Example: `c:`
 - Help: h:
+  - Example: `h:`
 - Delete a user: d:username
+  - Example: `d:username1`
 
 The program use Rainbow Node.js SDK and OV2500 RESTful API.
 
