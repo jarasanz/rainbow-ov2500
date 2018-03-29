@@ -44,8 +44,8 @@ Daneel will listen to request coming from sponsors:
 
 ## Installation
 
-1. Install or use your favourite Linux distro, I'll be using Ubuntu
-2. Install node.js, I would recommend to go LTS or latest, but usually Ubuntu repos are not so updated.
+**1.** Install or use your favourite Linux distro, I'll be using Ubuntu
+**2.** Install node.js, I would recommend to go LTS or latest, usually Ubuntu repos are not so updated regarding Node.js.
   - Install from binary packages - [Node.js Downloads](https://nodejs.org/en/download/)
   - Install from NodeSource repository - [Node.js Installing from PPA for Ubuntu/Debian](https://nodejs.org/en/download/package-manager/#debian-and-ubuntu-based-linux-distributions)
     * For Current-Latest features (Node.js 9):
@@ -59,7 +59,8 @@ Daneel will listen to request coming from sponsors:
   nodejs -v
   v9.10.0
   ```
-3.
+**3.** I'm not yet providing the package for a complete installation (npm pack), so have to install npm modules by hand:
+  - 
 
 The program use Rainbow Node.js SDK and OV2500 RESTful API.
 
