@@ -22,15 +22,15 @@ The Bot is connected to the Corporate Rainbow space, and IT manager creates a Bu
 
 Daneel will listen to request coming from sponsors:
 
-- Username: u:<username>, starts the process... Daneel waits for the password... or will timeout.
+- Username: u:username - starts the process... Daneel waits for the password... or will timeout.
   - Example: `u:username1`
 
 - Password: 
-  - p:<password>, manually introduced password
+  - p:password - manually introduced password
     - Example: `p:password2018`
-  - p:w , Daneel will generate a weak password, suited for humans
+  - p:w - Daneel will generate a weak password, suited for humans
     - Example: `p:w`
-  - p:s , Daneel will generate a strong password, for positronic androids, or paranoid humans...
+  - p:s - Daneel will generate a strong password, for positronic androids, or paranoid humans...
     - Example: `p:s`
 
 - Cancel Operation: c:
@@ -39,7 +39,7 @@ Daneel will listen to request coming from sponsors:
 - Help: h:
   - Example: `h:`
 
-- Delete a user: d:<username>
+- Delete a user: d:username
   - Example: `d:username1`
 
 The program use Rainbow Node.js SDK and OV2500 RESTful API.
