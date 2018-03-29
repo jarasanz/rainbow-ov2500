@@ -44,8 +44,8 @@ Daneel will listen to request coming from sponsors:
 
 ## Installation
 
-**1.** Install or use your favourite Linux distro, I'll be using Ubuntu
-**2.** Install node.js, I would recommend to go LTS or latest, usually Ubuntu repos are not so updated regarding Node.js.
+1. Install or use your favourite Linux distro, I'll be using Ubuntu
+2. Install node.js, I would recommend to go LTS or latest, usually Ubuntu repos are not so updated regarding Node.js.
   - Install from binary packages - [Node.js Downloads](https://nodejs.org/en/download/)
   - Install from NodeSource repository - [Node.js Installing from PPA for Ubuntu/Debian](https://nodejs.org/en/download/package-manager/#debian-and-ubuntu-based-linux-distributions)
     * For Current-Latest features (Node.js 9):
@@ -59,8 +59,51 @@ Daneel will listen to request coming from sponsors:
   nodejs -v
   v9.10.0
   ```
-**3.** I'm not yet providing the package for a complete installation (npm pack), so have to install npm modules by hand:
-  - 
+3. I'm not yet providing the package for a complete installation (npm pack), so have to install npm modules by hand:
+  - Following the [package.json](https://github.com/jarasanz/rainbow-ov2500/blob/master/package.json), you can find the dependencies:
+    - async
+    - human-password
+    - rainbow-node-sdk
+    - request
+  - Create a directory in your HOME directory
+  ```bash
+  mkdir bot
+  cd bot
+  ```
+  - Initializate your Node.js program with npm, keep the name of the main file (index.js)
+  ```bash
+  npm init
+  ```
+  - Install node.js modules with npm:
+  ```bash
+  npm install async --save
+  npm human-password --save
+  npm rainbow-node-sdk --save
+  npm request --save
+  ```
+  - Download [index.js](https://github.com/jarasanz/rainbow-ov2500/blob/master/index.js). If during ```npm init``` the main name of the js script was changed, rename index.js to that name.
+  - Using your favorite editor, edit the index.js file:
+    - Change IP address for OV2500, OV2500 username and password
+    ```node
+    const OV2500 = "192.168.1.10";
+    const ovuser = "admin";
+    const ovpass = "switch";
+    ```
+    - Change the Rainbow credentials for your bot:
+    ```node
+    // Define Rainbow configuration
+    let options = {
+        "rainbow": {
+            "host": "openrainbow.com",     
+        },
+        "credentials": {
+            "login": "bot_user@mail.com", //<--- Bot username here
+            "password": "bot_password"    //<--- Bot password here
+    ```
+  - Start the program
+  ```bash
+  node index.js
+  ```
 
 The program use Rainbow Node.js SDK and OV2500 RESTful API.
 
