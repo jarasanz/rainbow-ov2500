@@ -38,6 +38,7 @@ Daneel will listen to request coming from sponsors:
 
 - Help: h:
   - Example: `h:`
+  ![Help of Daneel](https://github.com/jarasanz/rainbow-ov2500/blob/master/Help.PNG)
 
 - Delete a user: d:username
   - Example: `d:username1`
