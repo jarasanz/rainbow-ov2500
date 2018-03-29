@@ -4,6 +4,12 @@ This Node.js app shows how to integrate two ALE ([Alcatel-Lucent Enterprise](htt
 - [**Rainbow**](https://www.openrainbow.com/), the CPaaS platform
 - [**OmniVista2500**](https://www.al-enterprise.com/en/products/network-management-security/omnivista-2500-network-management-system), the Network and Identity Management system for LAN (OmniSwitch) and WLAN (OmniAccess)
 
+The aim is showing how easy is to integrate **"Things"** in the new ERA of API Economy. Here, a human with a Rainbow account (freemium model), a bot with Rainbow account, the Rainbow Cloud based CPaaS and OV2500 (Enterprise or Cirrus) will collaborate in order to easy visitor/guest account creation.
+
+This bot will connect with:
+- Rainbow SDK for node.js in [**openRainbow**](https://api.openrainbow.com/#/)
+- RESTful API in OV2500
+
 The basic idea is people in a Bubble (Rainbow term for a chat group), can interact with **Daneel Bot**, asking Daneel to create users in OmniVista 2500 (OV2500) UPAM (the Identity Management System), so provisioned users can use SSIDs with 802.1X authentication.
 
 The human interacting with Daneel, can be seen as a **sponsor** asking for credentials for a visitor/guest.
