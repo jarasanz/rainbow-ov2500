@@ -21,12 +21,11 @@ Daneel will listen to request coming from sponsors:
 
 - Password: 
   - p:password, manually introduced password
-  - p:w , Daneel will generate a weak password, suited for humans 
+    Example: `p:password2018`
+  - p:w , Daneel will generate a weak password, suited for humans
+    Example: `p:w`
   - p:s , Daneel will generate a strong password, for positronic androids, or paranoid humans...
-  
-  - Example: `p:password2018`
-  - Example: `p:w`
-  - Example: `p:s`
+    Example: `p:s`
 
 - Cancel Operation: c:
   - Example: `c:`
