@@ -1,6 +1,7 @@
 # Daneel bot
 
-This Node.js app shows how to integrate ALE (Alcatel-Lucent Enterprise) Rainbow with OmniVista2500.
+This Node.js app shows how to integrate two ALE ([Alcatel-Lucent Enterprise] (https://www.al-enterprise.com/)) tools:
+(Alcatel-Lucent Enterprise) Rainbow with OmniVista2500.
 
 The basic idea is people in a Bubble (Rainbow term), can interact with Daneel Bot, asking Daneel to create users in OmniVista 2500 (OV2500), so users can use SSID with 802.1X authentication.
 
