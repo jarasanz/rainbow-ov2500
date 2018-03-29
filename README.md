@@ -18,14 +18,22 @@ Daneel will listen to request coming from sponsors:
 
 - Username: u:username starts the process... Daneel waits for the password... or will timeout.
   - Example: `u:username1`
-- Password: p:password, manually introduced password p:w , Daneel will generate a weak password, suited for humans p:s , Daneel will generate a strong password, for positronic androids, or paranoid humans...
+
+- Password: 
+  - p:password, manually introduced password
+  - p:w , Daneel will generate a weak password, suited for humans 
+  - p:s , Daneel will generate a strong password, for positronic androids, or paranoid humans...
+  
   - Example: `p:password2018`
   - Example: `p:w`
   - Example: `p:s`
+
 - Cancel Operation: c:
   - Example: `c:`
+
 - Help: h:
   - Example: `h:`
+
 - Delete a user: d:username
   - Example: `d:username1`
 
