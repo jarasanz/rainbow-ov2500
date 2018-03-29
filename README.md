@@ -50,9 +50,16 @@ Daneel will listen to request coming from sponsors:
   - Install from NodeSource repository - [Node.js Installing from PPA for Ubuntu/Debian](https://nodejs.org/en/download/package-manager/#debian-and-ubuntu-based-linux-distributions)
     * For Current-Latest features (Node.js 9):
     ```bash
+    sudo apt-get install curl
     curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash -
     sudo apt-get install -y nodejs
     ```
+  - Check Node.js release:
+  ```bash
+  nodejs -v
+  v9.10.0
+  ```
+3.
 
 The program use Rainbow Node.js SDK and OV2500 RESTful API.
 
