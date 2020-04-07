@@ -2,9 +2,15 @@ const password_min_length = 6;
 const user_min_lenght = 6;
 const badpassword_limit_1 = 3; // How many times the user enters a bad password
 const badpassword_limit_2 = 6;
-const OV2500 = "192.168.1.10";
+
+//
+const OV2500 = "192.168.1.15";
+const ovport = "443";
 const ovuser = "admin";
 const ovpass = "switch";
+//
+
+
 const timeout_user = 1*60*1000 //miliseconds
 
 // rainbowUser status
@@ -27,13 +33,13 @@ let options = {
         "host": "openrainbow.com",     
     },
     "credentials": {
-        "login": "rainbow.daneel@gmail.com",
-        "password": "Daneel666_!"
+        "login": "fake_rainbow_user@al-enterprise.com",
+        "password": "fake_rainbow_password"
     },
     //App identifier
     "application": {
-        "appID": "",
-        "appSecret": "",
+        "appID": "your_appID_provided_by_Rainbow",
+        "appSecret": "your_appSecret_provided_by_Rainbow",
     },
     // Logs options
     "logs": {
@@ -50,172 +56,276 @@ let options = {
     }
 };
 
-// Load request module for REST communication with OV2500
+// Load got module for REST communication with OV2500
 // and configure the default options for REST
-let request = require('request');
-request = request.defaults(
+const got = require('got');
+const {CookieJar} = require('tough-cookie');
+let cookieJar = new CookieJar();
+let restclient = got.extend(
     {
-        strictSSL: false,
-        jar: true,
-        followAllRedirects:true,
-        json: true
+        rejectUnauthorized: false,
+        cookieJar: cookieJar
     }
 );
 
 ///////////////////////////////////////////////////////////////////////////////
 // Let's login in OV2500
-function loginOV2500(IPaddress, userName, password, callback){
+function loginOV2500(IPaddress, port, userName, password, callback){
     
     let out = {error:0, info:""}
-    let body_request = {"userName": userName, "password": password};
+    let loginUser = {"userName": userName, "password": password};
+    let url = 'https://'+IPaddress+':'+port+'/api/login';
     
-    let options = {
-        url: 'https://'+IPaddress+'/api/login',
-        body: body_request
-    }
-    request.post(options, function(error, response, body) {
-        if (!error && response.statusCode == 200) {
-//            console.log(body);
-            out.error = 200
-            out.info = body
+    (async () => {
+        try {
+            let response = await restclient.post(url, {json:loginUser});
+            out.error = response.statusCode;
+            out.info = JSON.parse(response.body);
             callback(out);
             
-        }
-        else {
-//            console.log(error)
-//            console.log(response.statusCode);
-//            console.log(body);
+        } catch (error) {
+            console.log("**********");
+            console.log("ERROR !!!")
+            console.log(error);
             out.error = error;
-            out.info = response;
-            callback(out)
+            out.info = error.HTTPError;
+            callback(out);
         }
-    });
+
+    }) ();
+    
+//    let options = {
+//        url: 'https://'+IPaddress+':'+port+'/api/login',
+//        body: loginUser
+//    }
+//    request.post(options, function(error, response, body) {
+//        if (!error && response.statusCode == 200) {
+////            console.log(body);
+//            out.error = 200
+//            out.info = body
+//            callback(out);
+//            
+//        }
+//        else {
+////            console.log(error)
+////            console.log(response.statusCode);
+////            console.log(body);
+//            out.error = error;
+//            out.info = response;
+//            callback(out)
+//        }
+//    });
+
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 // Let's logout from OV2500
-function logoutOV2500(IPaddress, callback){
+function logoutOV2500(IPaddress, port, callback){
     
     let out = {error:0, info:""}
+    let url = 'https://'+IPaddress+':'+port+'/api/logout';
     
-    let options = {
-        url: 'https://'+IPaddress+'/api/logout',
-    }
-    request.get(options, function(error, response, body) {
-        if (!error && response.statusCode == 200) {
-//            console.log(body);
-            out.error = response.statusCode
-            out.info = body
+//    let options = {
+//        url: 'https://'+IPaddress+':'+port+'/api/logout',
+//    }
+
+    (async () => {
+        try {
+            let response = await restclient.get(url);
+            out.error = response.statusCode;
+            out.info = JSON.parse(response.body);
             callback(out);
             
-        }
-        else {
-//            console.log(error)
-//            console.log(response.statusCode);
-//            console.log(body);
+        } catch (error) {
+            console.log("**********");
+            console.log("ERROR !!!")
+            console.log(error);
             out.error = error;
-            out.info = response;
-            callback(out)
+            out.info = error.HTTPError;
+            callback(out);
         }
-    });
+
+    }) ();
+    
+//    request.get(options, function(error, response, body) {
+//        if (!error && response.statusCode == 200) {
+////            console.log(body);º
+//            out.error = response.statusCode
+//            out.info = body
+//            callback(out);
+//            
+//        }
+//        else {
+////            console.log(error)
+////            console.log(response.statusCode);
+////            console.log(body);
+//            out.error = error;
+//            out.info = response;
+//            callback(out)
+//        }
+//    });
+
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 // Let's add a user (Employee Account) to OV2500 Local DataBase
-function addUserOV2500LocalDB(IPaddress, user, callback){
+function addUserOV2500LocalDB(IPaddress, port, user, callback){
 
     let out = {error:0, info:""}
-    let body_request = {
+    let bodyRequest = {
         password: user.password,
         repeat: user.password,
         username: user.username
     };
+    let url = 'https://'+IPaddress+':'+port+'/api/ham/userAccount/addUser';
     
-    let options = {
-        url: 'https://'+IPaddress+'/api/ham/userAccount/addUser',
-        body: body_request
-    }
-    request.post(options, function(error, response, body) {
-        if (!error && response.statusCode == 200) {
-//            console.log(body);
-            out.error = response.statusCode
-            out.info = body
+//    let options = {
+//        url: 'https://'+IPaddress+':'+port+'/api/ham/userAccount/addUser',
+//        body: bodyRequest
+//    }
+    
+    (async () => {
+        try {
+            let response = await restclient.post(url, {json: bodyRequest});
+            out.error = response.statusCode;
+            out.info = JSON.parse(response.body);
             callback(out);
             
-        }
-        else {
-//            console.log(error)
-//            console.log(response.statusCode);
-//            console.log(body);
+        } catch (error) {
+            console.log("**********");
+            console.log("ERROR !!!")
+            console.log(error);        
             out.error = error;
-            out.info = response;
-            callback(out)
+            out.info = error.HTTPError;
+            callback(out);
         }
-    });
+
+    }) ();
+    
+//    request.post(options, function(error, response, body) {
+//        if (!error && response.statusCode == 200) {
+////            console.log(body);
+//            out.error = response.statusCode
+//            out.info = body
+//            callback(out);
+//            
+//        }
+//        else {
+////            console.log(error)
+////            console.log(response.statusCode);
+////            console.log(body);
+//            out.error = error;
+//            out.info = response;
+//            callback(out)
+//        }
+//    });
+
 };
 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Get the list of current users (Employee Account) in OV2500 Local DataBase
-function getAllAccountList(IPaddress, callback){
+function getAllAccountList(IPaddress, port, callback){
 
     let out = {error:0, info:""}
+    let url = 'https://'+IPaddress+':'+port+'/api/ham/userAccount/getAllAccountList';
     
-    let options = {
-        url: 'https://'+IPaddress+'/api/ham/userAccount/getAllAccountList',
-    }
-    request.get(options, function(error, response, body) {
-        if (!error && response.statusCode == 200) {
-//            console.log(body);
-            out.error = response.statusCode
-            out.info = body
+//    let options = {
+//        url: 'https://'+IPaddress+':'+port+'/api/ham/userAccount/getAllAccountList',
+//    }
+    
+    (async () => {
+        try {
+            let response = await restclient.get(url);
+            out.error = response.statusCode;
+            out.info = JSON.parse(response.body);
             callback(out);
             
-        }
-        else {
-//            console.log(error)
-//            console.log(response.statusCode);
-//            console.log(body);
+        } catch (error) {
+            console.log("**********");
+            console.log("ERROR !!!")
+            console.log(error);        
             out.error = error;
-            out.info = response;
-            callback(out)
+            out.info = error.HTTPError;
+            callback(out);
         }
-    });
+
+    }) ();
+    
+//    request.get(options, function(error, response, body) {
+//        if (!error && response.statusCode == 200) {
+////            console.log(body);
+//            out.error = response.statusCode
+//            out.info = body
+//            callback(out);
+//            
+//        }
+//        else {
+////            console.log(error)
+////            console.log(response.statusCode);
+////            console.log(body);
+//            out.error = error;
+//            out.info = response;
+//            callback(out)
+//        }
+//    });
+    
 };
 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Let's remove a user (Employee Account) from OV2500 Local DataBase
-function deleteAccount(IPaddress, userId, callback){
+function deleteAccount(IPaddress, port, userId, callback){
 
     let out = {error:0, info:""}
     let delAccountList = []
     delAccountList.push(userId);
    
-    let body_request;
-    body_request = delAccountList;
+    let url = 'https://'+IPaddress+':'+port+'/api/ham/userAccount/deleteAccount';
+    let bodyRequest;
+    bodyRequest = delAccountList;
     
-    let options = {
-        url: 'https://'+IPaddress+'/api/ham/userAccount/deleteAccount',
-        body: body_request
-    }
-    request.post(options, function(error, response, body) {
-        if (!error && response.statusCode == 200) {
-//            console.log(body);
-            out.error = response.statusCode
-            out.info = body
+//    let options = {
+//        url: 'https://'+IPaddress+':'+port+'/api/ham/userAccount/deleteAccount',
+//        body: body_request
+//    }
+    
+    (async () => {
+        try {
+            let response = await restclient.post(url, {json: bodyRequest});
+            out.error = response.statusCode;
+            out.info = JSON.parse(response.body);
             callback(out);
             
-        }
-        else {
-//            console.log(error)
-//            console.log(response.statusCode);
-//            console.log(body);
+        } catch (error) {
+            console.log("**********");
+            console.log("ERROR !!!")
+            console.log(error);        
             out.error = error;
-            out.info = response;
-            callback(out)
+            out.info = error.HTTPError;
+            callback(out);
         }
-    });
+
+    }) ();
+    
+//    request.post(options, function(error, response, body) {
+//        if (!error && response.statusCode == 200) {
+////            console.log(body);
+//            out.error = response.statusCode
+//            out.info = body
+//            callback(out);
+//            
+//        }
+//        else {
+////            console.log(error)
+////            console.log(response.statusCode);
+////            console.log(body);
+//            out.error = error;
+//            out.info = response;
+//            callback(out)
+//        }
+//    });
+    
 };
 
 
@@ -227,12 +337,12 @@ function addUser(OVuser, callback){
 
     let loginstatus;
 
-    loginOV2500(OV2500, ovuser, ovpass, function(loginstatus){
+    loginOV2500(OV2500, ovport, ovuser, ovpass, function(loginstatus){
         if (loginstatus.info.message.includes("success")) {
             
 //            console.log(loginstatus.info);        
-            addUserOV2500LocalDB(OV2500, OVuser, function(result){
-                logoutOV2500(OV2500, function(loginstatus){
+            addUserOV2500LocalDB(OV2500, ovport, OVuser, function(result){
+                logoutOV2500(OV2500, ovport, function(loginstatus){
 //                console.log(loginstatus)
                 });
                 callback(result);
@@ -250,11 +360,11 @@ function delUser(userId, callback){
 
     let loginstatus;
     
-    loginOV2500(OV2500, ovuser, ovpass, function(loginstatus){
+    loginOV2500(OV2500, ovport, ovuser, ovpass, function(loginstatus){
         if (loginstatus.info.message.includes("success")) {
-            deleteAccount(OV2500, userId, function(result){
+            deleteAccount(OV2500, ovport, userId, function(result){
 //                console.log(result.info);
-                logoutOV2500(OV2500, function(loginstatus){
+                logoutOV2500(OV2500, ovport, function(loginstatus){
                     callback(result);
                 });
             });
@@ -274,11 +384,13 @@ function findAccount(OVuser, callback){
     let i = 0;
     let userListLength = 0;
     
-    loginOV2500(OV2500, ovuser, ovpass, function(loginstatus){
+    loginOV2500(OV2500, ovport, ovuser, ovpass, function(loginstatus){
+        console.log("**********");
+        console.log("loginstatus:", loginstatus);
         if (loginstatus.info.message.includes("success")) {
-            getAllAccountList(OV2500, function(result){
+            getAllAccountList(OV2500, ovport, function(result){
 //                console.log(result.info.data);
-                logoutOV2500(OV2500, function(loginstatus){
+                logoutOV2500(OV2500, ovport, function(loginstatus){
                     asyn.detect(result.info.data, function(item, callback){
                             if (item.username.includes(OVuser.username)) {
                                 userId = item.id;
@@ -384,6 +496,10 @@ function updateRainbowUser(rainbowUsers, rainbowUser){
     return rainbowUsers;
 }
 
+
+//*****************************************************************************
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 // MAIN
 
@@ -421,7 +537,9 @@ rainbowSDK.events.on('rainbow_onmessagereceived', function(message) {
     // test if the message comes from a bubble of from a conversation with one participant
     let sendToJid;
     let msg = "";
-    let formatted_msg={"type": "text/markdown", "message": msg}
+    let formatted_msg = {"type": "text/markdown", "message": msg};
+    
+    console.log(message);
     
     if(message.type == "groupchat") {
         // Send the answer to the bubble
@@ -475,6 +593,18 @@ rainbowSDK.events.on('rainbow_onmessagereceived', function(message) {
     
     
     switch (message.content.slice(0,2)) {
+    
+        default:
+            
+                    
+            //help
+            msg = "I can add a new user in OV2500 for WLAN 802.1x SSID. You can send me the `UserName with u:<username> (u:user1)`, then the `password with p:<password> (p:password1)` , or just let me generate a password for you with `p:w` (weak password, suited for you, humans), or `p:s` (strong password, mainly dedicated to positronic robots, like me, or paranoid humans). I can also delete users, send the Username with `d:<username> (d:user12)`";
+            formatted_msg.message = msg;
+            messageSent = rainbowSDK.im.sendMessageToJid(msg, rainbowUser.id, "en", formatted_msg);
+            
+            break;
+    
+    
         case "c:":
         case "C:":
             // received Cancel operation
@@ -541,7 +671,7 @@ rainbowSDK.events.on('rainbow_onmessagereceived', function(message) {
                         else {
                             // User NOT in OV
 //                            console.log("User not in OV")
-                            msg = "Ok, I've the UserName: **" + OVuser.username + "**.";
+                            msg = "Ok, I've the UserName: **" + OVuser.username + "**. Now I need the password...";
                             formatted_msg.message = msg;
                             messageSent = rainbowSDK.im.sendMessageToJid(msg, rainbowUser.id, "en", formatted_msg);
                             rainbowUser.status = USERNAME_RECEIVED;
@@ -594,7 +724,11 @@ rainbowSDK.events.on('rainbow_onmessagereceived', function(message) {
                 if (message.content.length == 3){
                 // Daneel to generate the password
                     if (message.content.endsWith("w")){
-                        rainbowUser.OVuser.password = genpasswd();
+                        rainbowUser.OVuser.password = genpasswd({
+                            couples: 3,
+                            digits: 2,
+                            randomUpper: false,
+                            numberPosition: 'end'});
                     }
                     else if (message.content.endsWith("s")) {
                         rainbowUser.OVuser.password = genpasswd({
@@ -620,7 +754,7 @@ rainbowSDK.events.on('rainbow_onmessagereceived', function(message) {
                 else {
                 // Password defined by user
                     rainbowUser.OVuser.password = message.content.split(":")[1];
-                    msg = "Ok, now I've user and password, will add the user in UPAM...";
+                    msg = "Ok, now I have user and password, will add the user in UPAM...";
                     formatted_msg.message = msg;
                     messageSent = rainbowSDK.im.sendMessageToJid(msg, rainbowUser.id, "en", formatted_msg);
                 }
@@ -664,7 +798,15 @@ rainbowSDK.events.on('rainbow_onmessagereceived', function(message) {
                 switch (result.info.errorCode){
                     case 0:
                         // Everything OK
-                        OVmsg = result.info.translated.resultTranslated;
+                        console.log("UPAM Employee User Added: ",result);
+                        if (result.info.errorCode == 0){
+//                            OVmsg = result.info.result;
+                            OVmsg = result.info.translated.resultTranslated;
+                        }
+                        else {
+                            OVmsg = result.info.translated.resultTranslated;
+                        }
+                        
                         msg = "The user **" + rainbowUser.OVuser.username + "**, with password **" + rainbowUser.OVuser.password + "**, has been successfully added to OV2500-UPAM, user can now safely access to SSID with 802.1X security.";
                         formatted_msg.message = msg;
                         messageSent = rainbowSDK.im.sendMessageToJid(msg, rainbowUser.id, "en", formatted_msg);
@@ -713,9 +855,15 @@ rainbowSDK.events.on('rainbow_onmessagereceived', function(message) {
                         // User in OV
 //                        console.log("User in OV");
                         delUser(userId, function(result){
-                            if (result.info.errorCode == 0){
+                            console.log("UPAM Delete Employee User:", result);
+//                            if (result.info.errorCode == 0){ // for use with OV2500 Enterprise
+                            if ( result.info.statusCode == 0 || result.info.errorCode == 0 ){ //for user with OV-Cirrus
                                 // User deleted
+                                OVmsg = result.info.translated.resultTranslated;
                                 msg = "User **" + OVuser.username + ", successfully deleted** in OV2500 DataBase.";
+                                formatted_msg.message = msg;
+                                messageSent = rainbowSDK.im.sendMessageToJid(msg, rainbowUser.id, "en", formatted_msg);
+                                msg = "**UPAM info:** `" + OVmsg + "`";
                                 formatted_msg.message = msg;
                                 messageSent = rainbowSDK.im.sendMessageToJid(msg, rainbowUser.id, "en", formatted_msg);
                             }

@@ -3,6 +3,8 @@
 const dns = require('dns')
 const compareAltConnections = require('./alt-connections').compare
 
+const IGNORE_CODES = ['ENOTFOUND', 'ENODATA']
+
 function lookup(domain, options = {}) {
   options.all = true
   return new Promise((resolve, reject) => {
@@ -35,7 +37,7 @@ function lookup(domain, options = {}) {
 function resolveTxt(domain, {owner = '_xmppconnect'}) {
   return new Promise((resolve, reject) => {
     dns.resolveTxt(`${owner}.${domain}`, (err, records) => {
-      if (err && err.code === 'ENOTFOUND') {
+      if (err && IGNORE_CODES.includes(err.code)) {
         resolve([])
       } else if (err) {
         reject(err)
@@ -61,7 +63,7 @@ function resolveTxt(domain, {owner = '_xmppconnect'}) {
 function resolveSrv(domain, {service, protocol}) {
   return new Promise((resolve, reject) => {
     dns.resolveSrv(`_${service}._${protocol}.${domain}`, (err, records) => {
-      if (err && err.code === 'ENOTFOUND') {
+      if (err && IGNORE_CODES.includes(err.code)) {
         resolve([])
       } else if (err) {
         reject(err)
@@ -95,19 +97,18 @@ function sortSrv(records) {
 function lookupSrvs(srvs, options) {
   const addresses = []
   return Promise.all(
-    srvs.map(srv => {
-      return lookup(srv.name, options).then(srvAddresses => {
-        srvAddresses.forEach(address => {
-          const {port, service} = srv
-          const addr = address.address
-          addresses.push(
-            Object.assign({}, address, srv, {
-              uri: `${service.split('-')[0]}://${address.family === 6
-                ? '[' + addr + ']'
-                : addr}:${port}`,
-            })
-          )
-        })
+    srvs.map(async srv => {
+      const srvAddresses = await lookup(srv.name, options)
+      srvAddresses.forEach(address => {
+        const {port, service} = srv
+        const addr = address.address
+        addresses.push(
+          Object.assign({}, address, srv, {
+            uri: `${service.split('-')[0]}://${
+              address.family === 6 ? '[' + addr + ']' : addr
+            }:${port}`,
+          })
+        )
       })
     })
   ).then(() => addresses)
@@ -158,16 +159,16 @@ function resolve(domain, options = {}) {
       },
     ]
   }
+
   const family = {options}
   return lookup(domain, options).then(addresses => {
     return Promise.all(
       options.srv.map(srv => {
-        return resolveSrv(
-          domain,
-          Object.assign({}, srv, {family})
-        ).then(records => {
-          return lookupSrvs(records, options)
-        })
+        return resolveSrv(domain, Object.assign({}, srv, {family})).then(
+          records => {
+            return lookupSrvs(records, options)
+          }
+        )
       })
     )
       .then(srvs => sortSrv([].concat(...srvs)).concat(addresses))
