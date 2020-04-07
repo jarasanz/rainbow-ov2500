@@ -12,6 +12,7 @@
     "async": "^3.2.0",
     "got": "^10.7.0",
     "human-password": "^1.0.4",
-    "rainbow-node-sdk": "^1.69.0"
+    "rainbow-node-sdk": "^1.69.0",
+    "tough-cookie": "^4.0.0"
   }
 }

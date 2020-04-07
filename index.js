@@ -3,13 +3,25 @@ const user_min_lenght = 6;
 const badpassword_limit_1 = 3; // How many times the user enters a bad password
 const badpassword_limit_2 = 6;
 
+//const OV2500 = "ov2500.aluelab.com";
+//const ovport = "4343";
+//const ovuser = "admin";
+//const ovpass = "Tatooine8000_!";
 //
 const OV2500 = "192.168.1.15";
 const ovport = "443";
 const ovuser = "admin";
 const ovpass = "switch";
 //
-
+//const OV2500 = "madlab.ov.ovcirrus.com";
+//const ovport = "443";
+//const ovuser = "jorge";
+//const ovpass = "Trantor666_!";
+//
+//const OV2500 = "186.31.66.130";
+//const ovport = "1443";
+//const ovuser = "rainbow_rw";
+//const ovpass = "Alcatel.2017";
 
 const timeout_user = 1*60*1000 //miliseconds
 
@@ -33,13 +45,13 @@ let options = {
         "host": "openrainbow.com",     
     },
     "credentials": {
-        "login": "fake_rainbow_user@al-enterprise.com",
-        "password": "fake_rainbow_password"
+        "login": "rainbow.daneel@gmail.com",
+        "password": "Daneel666_!"
     },
     //App identifier
     "application": {
-        "appID": "your_appID_provided_by_Rainbow",
-        "appSecret": "your_appSecret_provided_by_Rainbow",
+        "appID": "55a95820fdf011e8906d03093170a237",
+        "appSecret": "elltlP1SdaGk55YITR0utfQtUa95bBn1Q9SWHU4TmKT5tED8sp7EEvDLoqRjsQxT",
     },
     // Logs options
     "logs": {
