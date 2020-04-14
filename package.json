@@ -10,9 +10,13 @@
   "license": "MIT",
   "dependencies": {
     "async": "^3.2.0",
+    "google-libphonenumber": "^3.2.8",
     "got": "^10.7.0",
     "human-password": "^1.0.4",
+    "nodemailer": "^6.4.6",
+    "plivo": "^4.5.1",
     "rainbow-node-sdk": "^1.69.0",
+    "request": "^2.88.2",
     "tough-cookie": "^4.0.0"
   }
 }

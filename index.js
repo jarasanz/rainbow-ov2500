@@ -3,25 +3,24 @@ const user_min_lenght = 6;
 const badpassword_limit_1 = 3; // How many times the user enters a bad password
 const badpassword_limit_2 = 6;
 
-//const OV2500 = "ov2500.aluelab.com";
-//const ovport = "4343";
-//const ovuser = "admin";
-//const ovpass = "Tatooine8000_!";
+// **************** ANONYMIZE START *******************
+const rainbowLoginUser = "fake_rainbow_account@gmail.com";
+const rainbowLoginPass = "fake_rainbow_password";
+const rainbowappID = "rainbowappID_provided_by_Rainbow";
+const rainbowappSecret = "rainbowappSecret_provided_by_Rainbow";
+const origin_number = "plivio_origin_phone";
+const plivoauthID = "plivoauthID_provided_by_Plivio";
+const plivoauthToken = "plivoauthToken_provided_by_Plivio";
+const emailUser = "mail.account@gmail.com";
+const emailPass = "mail_password";
 //
 const OV2500 = "192.168.1.15";
 const ovport = "443";
 const ovuser = "admin";
 const ovpass = "switch";
 //
-//const OV2500 = "madlab.ov.ovcirrus.com";
-//const ovport = "443";
-//const ovuser = "jorge";
-//const ovpass = "Trantor666_!";
-//
-//const OV2500 = "186.31.66.130";
-//const ovport = "1443";
-//const ovuser = "rainbow_rw";
-//const ovpass = "Alcatel.2017";
+
+// **************** ANONYMIZE END *******************
 
 const timeout_user = 1*60*1000 //miliseconds
 
@@ -36,7 +35,7 @@ let asyn = require('async');
 // Load the password generator
 let genpasswd = require('human-password');
 
-// Load the SDK
+// Load the Rainbow SDK
 let RainbowSDK = require('rainbow-node-sdk');
 
 // Define Rainbow configuration
@@ -45,13 +44,13 @@ let options = {
         "host": "openrainbow.com",     
     },
     "credentials": {
-        "login": "rainbow.daneel@gmail.com",
-        "password": "Daneel666_!"
+        "login": rainbowLoginUser,
+        "password": rainbowLoginPass
     },
     //App identifier
     "application": {
-        "appID": "55a95820fdf011e8906d03093170a237",
-        "appSecret": "elltlP1SdaGk55YITR0utfQtUa95bBn1Q9SWHU4TmKT5tED8sp7EEvDLoqRjsQxT",
+        "appID": rainbowappID,
+        "appSecret": rainbowappSecret,
     },
     // Logs options
     "logs": {
@@ -68,17 +67,50 @@ let options = {
     }
 };
 
+// Load Plivio SMS API module
+let phoneUtil = require('google-libphonenumber').PhoneNumberUtil.getInstance()
+        , PNT = require('google-libphonenumber').PhoneNumberType;
+let plivo = require('plivo');
+let plivoClient = new plivo.Client(plivoauthID, plivoauthToken);
+
+// Load email module
+let nodemailer = require('nodemailer');
+let transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: emailUser,
+    pass: emailPass
+  }
+});
+
+
 // Load got module for REST communication with OV2500
 // and configure the default options for REST
-const got = require('got');
-const {CookieJar} = require('tough-cookie');
-let cookieJar = new CookieJar();
-let restclient = got.extend(
+//const got = require('got');
+//const {CookieJar} = require('tough-cookie');
+//let cookieJar = new CookieJar();
+//let restclient = got.extend(
+//    {
+//        rejectUnauthorized: false,
+//        cookieJar: cookieJar
+//    }
+//);
+
+
+// Load request module for REST communication with OV2500
+// and configure the default options for REST
+let restclient = require('request');
+restclient = restclient.defaults(
     {
-        rejectUnauthorized: false,
-        cookieJar: cookieJar
+        strictSSL: false,
+        jar: true,
+        followAllRedirects:true,
+        json: true
     }
 );
+
+
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Let's login in OV2500
@@ -88,45 +120,46 @@ function loginOV2500(IPaddress, port, userName, password, callback){
     let loginUser = {"userName": userName, "password": password};
     let url = 'https://'+IPaddress+':'+port+'/api/login';
     
-    (async () => {
-        try {
-            let response = await restclient.post(url, {json:loginUser});
-            out.error = response.statusCode;
-            out.info = JSON.parse(response.body);
-            callback(out);
-            
-        } catch (error) {
-            console.log("**********");
-            console.log("ERROR !!!")
-            console.log(error);
-            out.error = error;
-            out.info = error.HTTPError;
-            callback(out);
-        }
-
-    }) ();
-    
-//    let options = {
-//        url: 'https://'+IPaddress+':'+port+'/api/login',
-//        body: loginUser
-//    }
-//    request.post(options, function(error, response, body) {
-//        if (!error && response.statusCode == 200) {
-////            console.log(body);
-//            out.error = 200
-//            out.info = body
+//    (async () => {
+//        try {
+//            let response = await restclient.post(url, {json:loginUser});
+//            out.error = response.statusCode;
+//            out.info = JSON.parse(response.body);
 //            callback(out);
 //            
-//        }
-//        else {
-////            console.log(error)
-////            console.log(response.statusCode);
-////            console.log(body);
+//        } catch (error) {
+//            console.log("**********");
+//            console.log("ERROR !!!")
+//            console.log(error);
 //            out.error = error;
-//            out.info = response;
-//            callback(out)
+//            out.info = error.HTTPError;
+//            callback(out);
 //        }
-//    });
+
+//    }) ();
+    
+    let options = {
+        url: url,
+        body: loginUser
+    }
+    console.log("REST call to OV Login API...");
+    restclient.post(options, function(error, response, body) {
+        if (!error && response.statusCode == 200) {
+//            console.log(body);
+            out.error = 200
+            out.info = body
+            callback(out);
+            
+        }
+        else {
+//            console.log(error)
+//            console.log(response.statusCode);
+//            console.log(body);
+            out.error = error;
+            out.info = response;
+            callback(out)
+        }
+    });
 
 };
 
@@ -137,45 +170,47 @@ function logoutOV2500(IPaddress, port, callback){
     let out = {error:0, info:""}
     let url = 'https://'+IPaddress+':'+port+'/api/logout';
     
-//    let options = {
-//        url: 'https://'+IPaddress+':'+port+'/api/logout',
-//    }
-
-    (async () => {
-        try {
-            let response = await restclient.get(url);
-            out.error = response.statusCode;
-            out.info = JSON.parse(response.body);
-            callback(out);
-            
-        } catch (error) {
-            console.log("**********");
-            console.log("ERROR !!!")
-            console.log(error);
-            out.error = error;
-            out.info = error.HTTPError;
-            callback(out);
-        }
-
-    }) ();
-    
-//    request.get(options, function(error, response, body) {
-//        if (!error && response.statusCode == 200) {
-////            console.log(body);º
-//            out.error = response.statusCode
-//            out.info = body
+//    // got
+//    (async () => {
+//        try {
+//            let response = await restclient.get(url);
+//            out.error = response.statusCode;
+//            out.info = JSON.parse(response.body);
 //            callback(out);
 //            
-//        }
-//        else {
-////            console.log(error)
-////            console.log(response.statusCode);
-////            console.log(body);
+//        } catch (error) {
+//            console.log("**********");
+//            console.log("ERROR !!!")
+//            console.log(error);
 //            out.error = error;
-//            out.info = response;
-//            callback(out)
+//            out.info = error.HTTPError;
+//            callback(out);
 //        }
-//    });
+
+//    }) ();
+    
+    //request 
+    let options = {
+        url: url,
+    }
+    
+    restclient.get(options, function(error, response, body) {
+        if (!error && response.statusCode == 200) {
+//            console.log(body);
+            out.error = response.statusCode
+            out.info = body
+            callback(out);
+            
+        }
+        else {
+//            console.log(error)
+//            console.log(response.statusCode);
+//            console.log(body);
+            out.error = error;
+            out.info = response;
+            callback(out)
+        }
+    });
 
 };
 
@@ -191,46 +226,47 @@ function addUserOV2500LocalDB(IPaddress, port, user, callback){
     };
     let url = 'https://'+IPaddress+':'+port+'/api/ham/userAccount/addUser';
     
-//    let options = {
-//        url: 'https://'+IPaddress+':'+port+'/api/ham/userAccount/addUser',
-//        body: bodyRequest
-//    }
-    
-    (async () => {
-        try {
-            let response = await restclient.post(url, {json: bodyRequest});
-            out.error = response.statusCode;
-            out.info = JSON.parse(response.body);
-            callback(out);
-            
-        } catch (error) {
-            console.log("**********");
-            console.log("ERROR !!!")
-            console.log(error);        
-            out.error = error;
-            out.info = error.HTTPError;
-            callback(out);
-        }
-
-    }) ();
-    
-//    request.post(options, function(error, response, body) {
-//        if (!error && response.statusCode == 200) {
-////            console.log(body);
-//            out.error = response.statusCode
-//            out.info = body
+//    // got
+//    (async () => {
+//        try {
+//            let response = await restclient.post(url, {json: bodyRequest});
+//            out.error = response.statusCode;
+//            out.info = JSON.parse(response.body);
 //            callback(out);
 //            
-//        }
-//        else {
-////            console.log(error)
-////            console.log(response.statusCode);
-////            console.log(body);
+//        } catch (error) {
+//            console.log("**********");
+//            console.log("ERROR !!!")
+//            console.log(error);        
 //            out.error = error;
-//            out.info = response;
-//            callback(out)
+//            out.info = error.HTTPError;
+//            callback(out);
 //        }
-//    });
+
+//    }) ();
+
+    // request
+    let options = {
+        url: url,
+        body: bodyRequest
+    }    
+    restclient.post(options, function(error, response, body) {
+        if (!error && response.statusCode == 200) {
+//            console.log(body);
+            out.error = response.statusCode
+            out.info = body
+            callback(out);
+            
+        }
+        else {
+//            console.log(error)
+//            console.log(response.statusCode);
+//            console.log(body);
+            out.error = error;
+            out.info = response;
+            callback(out)
+        }
+    });
 
 };
 
@@ -242,45 +278,46 @@ function getAllAccountList(IPaddress, port, callback){
     let out = {error:0, info:""}
     let url = 'https://'+IPaddress+':'+port+'/api/ham/userAccount/getAllAccountList';
     
-//    let options = {
-//        url: 'https://'+IPaddress+':'+port+'/api/ham/userAccount/getAllAccountList',
-//    }
-    
-    (async () => {
-        try {
-            let response = await restclient.get(url);
-            out.error = response.statusCode;
-            out.info = JSON.parse(response.body);
-            callback(out);
-            
-        } catch (error) {
-            console.log("**********");
-            console.log("ERROR !!!")
-            console.log(error);        
-            out.error = error;
-            out.info = error.HTTPError;
-            callback(out);
-        }
-
-    }) ();
-    
-//    request.get(options, function(error, response, body) {
-//        if (!error && response.statusCode == 200) {
-////            console.log(body);
-//            out.error = response.statusCode
-//            out.info = body
+    // got
+//    (async () => {
+//        try {
+//            let response = await restclient.get(url);
+//            out.error = response.statusCode;
+//            out.info = JSON.parse(response.body);
 //            callback(out);
 //            
-//        }
-//        else {
-////            console.log(error)
-////            console.log(response.statusCode);
-////            console.log(body);
+//        } catch (error) {
+//            console.log("**********");
+//            console.log("ERROR !!!")
+//            console.log(error);        
 //            out.error = error;
-//            out.info = response;
-//            callback(out)
+//            out.info = error.HTTPError;
+//            callback(out);
 //        }
-//    });
+
+//    }) ();
+    
+    // request
+    let options = {
+        url: url,
+    }    
+    restclient.get(options, function(error, response, body) {
+        if (!error && response.statusCode == 200) {
+//            console.log(body);
+            out.error = response.statusCode
+            out.info = body
+            callback(out);
+            
+        }
+        else {
+//            console.log(error)
+//            console.log(response.statusCode);
+//            console.log(body);
+            out.error = error;
+            out.info = response;
+            callback(out)
+        }
+    });
     
 };
 
@@ -297,46 +334,47 @@ function deleteAccount(IPaddress, port, userId, callback){
     let bodyRequest;
     bodyRequest = delAccountList;
     
-//    let options = {
-//        url: 'https://'+IPaddress+':'+port+'/api/ham/userAccount/deleteAccount',
-//        body: body_request
-//    }
-    
-    (async () => {
-        try {
-            let response = await restclient.post(url, {json: bodyRequest});
-            out.error = response.statusCode;
-            out.info = JSON.parse(response.body);
-            callback(out);
-            
-        } catch (error) {
-            console.log("**********");
-            console.log("ERROR !!!")
-            console.log(error);        
-            out.error = error;
-            out.info = error.HTTPError;
-            callback(out);
-        }
-
-    }) ();
-    
-//    request.post(options, function(error, response, body) {
-//        if (!error && response.statusCode == 200) {
-////            console.log(body);
-//            out.error = response.statusCode
-//            out.info = body
+    // got
+//    (async () => {
+//        try {
+//            let response = await restclient.post(url, {json: bodyRequest});
+//            out.error = response.statusCode;
+//            out.info = JSON.parse(response.body);
 //            callback(out);
 //            
-//        }
-//        else {
-////            console.log(error)
-////            console.log(response.statusCode);
-////            console.log(body);
+//        } catch (error) {
+//            console.log("**********");
+//            console.log("ERROR !!!")
+//            console.log(error);        
 //            out.error = error;
-//            out.info = response;
-//            callback(out)
+//            out.info = error.HTTPError;
+//            callback(out);
 //        }
-//    });
+
+//    }) ();
+    
+    // request
+    let options = {
+        url: url,
+        body: bodyRequest
+    }
+    restclient.post(options, function(error, response, body) {
+        if (!error && response.statusCode == 200) {
+//            console.log(body);
+            out.error = response.statusCode
+            out.info = body
+            callback(out);
+            
+        }
+        else {
+//            console.log(error)
+//            console.log(response.statusCode);
+//            console.log(body);
+            out.error = error;
+            out.info = response;
+            callback(out)
+        }
+    });
     
 };
 
@@ -396,9 +434,10 @@ function findAccount(OVuser, callback){
     let i = 0;
     let userListLength = 0;
     
+    console.log("Entering findAccount...");
     loginOV2500(OV2500, ovport, ovuser, ovpass, function(loginstatus){
-        console.log("**********");
-        console.log("loginstatus:", loginstatus);
+//        console.log("**********");
+//        console.log("loginstatus:", loginstatus);
         if (loginstatus.info.message.includes("success")) {
             getAllAccountList(OV2500, ovport, function(result){
 //                console.log(result.info.data);
@@ -610,10 +649,29 @@ rainbowSDK.events.on('rainbow_onmessagereceived', function(message) {
             
                     
             //help
-            msg = "I can add a new user in OV2500 for WLAN 802.1x SSID. You can send me the `UserName with u:<username> (u:user1)`, then the `password with p:<password> (p:password1)` , or just let me generate a password for you with `p:w` (weak password, suited for you, humans), or `p:s` (strong password, mainly dedicated to positronic robots, like me, or paranoid humans). I can also delete users, send the Username with `d:<username> (d:user12)`";
+            msg = "I can add users to OmniVista for WLAN 802.1x authentication. Just send me one of the followin options:";
             formatted_msg.message = msg;
             messageSent = rainbowSDK.im.sendMessageToJid(msg, rainbowUser.id, "en", formatted_msg);
-            
+            msg = "**- u:username** for sending me the username (u:Psychohistory).";
+            formatted_msg.message = msg;
+            messageSent = rainbowSDK.im.sendMessageToJid(msg, rainbowUser.id, "en", formatted_msg);
+            msg = "**- p:password** for sending me the password, once I have the username (p:Psycopassword).";
+            formatted_msg.message = msg;
+            messageSent = rainbowSDK.im.sendMessageToJid(msg, rainbowUser.id, "en", formatted_msg);
+            msg = "**- p:w** I will generate a weak password for you, suited for human brains.";
+            formatted_msg.message = msg;
+            messageSent = rainbowSDK.im.sendMessageToJid(msg, rainbowUser.id, "en", formatted_msg);
+            msg = "**- p:s** I will generate a strong password for you, suited for positronic robots, like me, or paranoid humans.";
+            formatted_msg.message = msg;
+            messageSent = rainbowSDK.im.sendMessageToJid(msg, rainbowUser.id, "en", formatted_msg);
+            msg = "**- m:mobile** I will generate a weak password and send user credentials by SMS to user.";
+            formatted_msg.message = msg;
+            messageSent = rainbowSDK.im.sendMessageToJid(msg, rainbowUser.id, "en", formatted_msg);
+            msg = "**- d:username** I will delete the user account from OmniVista database.>";
+//            msg = "I can add a new user in OV2500 for WLAN 802.1x SSID. You can send me the `UserName with u:<username> (u:user1)`, then the `password with p:<password> (p:password1)` , or just let me generate a password for you with `p:w` (weak password, suited for you, humans), or `p:s` (strong password, mainly dedicated to positronic robots, like me, or paranoid humans).";
+            formatted_msg.message = msg;
+            messageSent = rainbowSDK.im.sendMessageToJid(msg, rainbowUser.id, "en", formatted_msg);
+
             break;
     
     
@@ -643,7 +701,7 @@ rainbowSDK.events.on('rainbow_onmessagereceived', function(message) {
         case "u:":
         case "U:":
             // received the username
-            
+            console.log("New username received...")
             // Check the STATUS of the rainbow user and see if it's a NEW Transaction
             if (rainbowUser.status == USERNAME_RECEIVED){
                 // pretty rare... the USERNAME was already received... OLD Transaction
@@ -668,7 +726,7 @@ rainbowSDK.events.on('rainbow_onmessagereceived', function(message) {
                     // NEW TRANSACTION and VALID USERNAME
                     OVuser = resetNewUser(OVuser);
                     OVuser.username = message.content.split(":")[1];
-                    
+                    console.log("New Transaction and VALID username...");
                     findAccount(OVuser, function(userId){
                         if (userId != false){
                             // User in OV
@@ -721,9 +779,16 @@ rainbowSDK.events.on('rainbow_onmessagereceived', function(message) {
         case "h:":
         case "H:":
             // Help
-            msg = "I can add a new user in OV2500 for WLAN 802.1x SSID. You can send me the `UserName with u:<username> (u:user1)`, then the `password with p:<password> (p:password1)` , or just let me generate a password for you with `p:w` (weak password, suited for you, humans), or `p:s` (strong password, mainly dedicated to positronic robots, like me, or paranoid humans). I can also delete users, send the Username with `d:<username> (d:user12)`";
+            msg = "I can add a new user in OV2500 for WLAN 802.1x SSID. You can send me the `UserName with u:<username> (u:user1)`, then the `password with p:<password> (p:password1)` , or just let me generate a password for you with `p:w` (weak password, suited for you, humans), or `p:s` (strong password, mainly dedicated to positronic robots, like me, or paranoid humans).";
             formatted_msg.message = msg;
             messageSent = rainbowSDK.im.sendMessageToJid(msg, rainbowUser.id, "en", formatted_msg);
+            msg = "With **m:mobile** I will add the user the OmniVista and send an SMS with the credentials `m:<mobile> (m:+346XXXXXXXX)`";
+            formatted_msg.message = msg;
+            messageSent = rainbowSDK.im.sendMessageToJid(msg, rainbowUser.id, "en", formatted_msg);
+            msg = "I can also delete users, send the Username with `d:<username> (d:user12)`";
+            formatted_msg.message = msg;
+            messageSent = rainbowSDK.im.sendMessageToJid(msg, rainbowUser.id, "en", formatted_msg);
+            
             break;
             
         case "p:":
@@ -898,6 +963,131 @@ rainbowSDK.events.on('rainbow_onmessagereceived', function(message) {
             };
 //            OVuser = resetNewUser(OVuser);
             break;
+            
+        case "m:":
+        case "M:":
+            // mobile phone provided
+                console.log("Mobile option received...");
+                console.log("Received:"+message.content);
+                // Check mobile phone length
+                try {
+                    let mobile = phoneUtil.parse(message.content.split(":")[1]);
+                    console.log("Phone Number recieved:" + phoneUtil.format(mobile));
+                    console.log("isValidNumber:"+phoneUtil.isValidNumber(mobile));
+                    console.log("getNumberType:"+phoneUtil.getNumberType(mobile));
+                    console.log("Prueba:"+((phoneUtil.isValidNumber(mobile)) && (phoneUtil.getNumberType(mobile) == PNT.MOBILE)));
+                    if ( (phoneUtil.isValidNumber(mobile)) && (phoneUtil.getNumberType(mobile) == PNT.MOBILE) ) {
+                    
+                        // NEW TRANSACTION and VALID mobile phone
+                        console.log("Valid mobile phone!");
+                        OVuser = resetNewUser(OVuser);
+                        OVuser.username = message.content.split(":")[1].split("+")[1];
+                        console.log("OVuser.username:" + OVuser.username);
+                        findAccount(OVuser, function(userId){
+                            if (userId != false){
+                                // User in OV
+                                console.log("User in OV. Cancelling...");
+                                msg = "UserName: **" + OVuser.username + "**, already exists in OV2500. **Cancelling**... `Please use other mobile number`.";
+                                formatted_msg.message = msg;
+                                messageSent = rainbowSDK.im.sendMessageToJid(msg, rainbowUser.id, "en", formatted_msg);
+                                OVuser = resetNewUser(OVuser);
+                                rainbowUser = clearRainbowUser();
+                            
+                            }
+                            else {
+                                // User NOT in OV
+                                console.log("User not in OV, so create a new user from mobile phone")
+
+                                rainbowUser.status = USERNAME_RECEIVED;
+                                rainbowUser.OVuser = OVuser;
+                                console.log("rainbowUser.OVuser:" + rainbowUser.OVuser);
+                            
+                                // Generating a WEAK password
+                                rainbowUser.OVuser.password = genpasswd({
+                                    couples: 3,
+                                    digits: 2,
+                                    randomUpper: false,
+                                    numberPosition: 'end'});
+                                
+                                rainbowUsers.push(rainbowUser);
+                            
+                                // Add the user to OV2500-UPAM
+                                addUser(rainbowUser.OVuser, function(result){
+                                    switch (result.info.errorCode){
+                                        case 0:
+                                            // Everything OK
+                                            console.log("UPAM Employee User Added: ",result);
+                                            if (result.info.errorCode == 0){
+//                                              OVmsg = result.info.result;
+                                                OVmsg = result.info.translated.resultTranslated;
+                                            }
+                                            else {
+                                              OVmsg = result.info.translated.resultTranslated;
+                                            }
+                            
+                                        
+                                            // sending SMS with credentials
+                                            let sms = "Username:" + rainbowUser.OVuser.username + "\nPassword:" + rainbowUser.OVuser.password;
+                                            plivoClient.messages.create(
+                                                origin_number, //Source number
+                                                OVuser.username, //Destination number
+                                                sms // message
+                                            ).then(function(message_created) {
+                                                console.log("SMS sent to mobile " + rainbowUser.OVuser.username)
+                                                console.log(message_created)
+                                            
+                                                msg = "The user **" + rainbowUser.OVuser.username + "**, has been successfully added to OV2500-UPAM, user can now safely access to SSID with 802.1X security. User will receive the credentials via SMS";
+                                                formatted_msg.message = msg;
+                                                messageSent = rainbowSDK.im.sendMessageToJid(msg, rainbowUser.id, "en", formatted_msg);
+                                        
+                                                msg = "**UPAM info:** `" + OVmsg + "`";
+                                                formatted_msg.message = msg;
+                                                messageSent = rainbowSDK.im.sendMessageToJid(msg, rainbowUser.id, "en", formatted_msg);
+                        
+                                                rainbowUsers = removeRainbowUser(rainbowUsers, rainbowUser);
+                                                rainbowUser = clearRainbowUser();
+                                            
+                                            });
+                            
+                                            break;
+                                        case -1:
+                                            // Something went wrong
+                                            OVmsg = result.info.errorMessageTranslated;
+                                            msg = "Add user `**FAILED**`..."
+                                            formatted_msg.message = msg;
+                                            messageSent = rainbowSDK.im.sendMessageToJid(msg, rainbowUser.id, "en", formatted_msg);
+                                            msg = "**UPAM info:** `" + OVmsg + "`";
+                                            formatted_msg.message = msg;
+                                            messageSent = rainbowSDK.im.sendMessageToJid(msg, rainbowUser.id, "en", formatted_msg);
+                        
+                                            rainbowUsers = removeRainbowUser(rainbowUsers, rainbowUser);
+                                            rainbowUser = clearRainbowUser();
+                        
+                                            break;
+                                    }
+                                });
+                            }
+                        });
+                    } 
+                } catch(error) {
+                
+                    console(error);
+                    console.log("Not a valid mobile phone received... quit.");
+                    
+                    msg = "Not a valid mobile phone. Please use E.164 format (+18XXXXXXXXX, +346ZZZZZZZZ, etc.)";
+                    formatted_msg.message = msg;
+                    messageSent = rainbowSDK.im.sendMessageToJid(msg, rainbowUser.id, "en", formatted_msg);
+                    rainbowUser = clearRainbowUser();
+                    
+                    break;
+                }
+            break;  
+
+            
+        case "a:":
+        case "A:":
+            // email address provided
+            
     };
 });
 
