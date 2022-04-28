@@ -9,7 +9,7 @@
   "author": "Jorge Arasanz",
   "license": "MIT",
   "dependencies": {
-    "async": "^2.6.0",
+    "async": "^2.6.4",
     "human-password": "^1.0.4",
     "rainbow-node-sdk": "^1.37.0",
     "request": "^2.83.0"
